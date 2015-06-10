@@ -24,12 +24,16 @@ class VideoModeSelector(SlaveView):
             self.configs = configs
         super(VideoModeSelector, self).__init__()
 
-    def create_ui(self):
+    def set_configs(self, configs):
         config_str_f = lambda c: '[{label}] {width}x{height}\t{framerate:.0f}fps'.format(**c)
 
-        self.config_store = Gtk.ListStore(int, object, str)
-        for i, config_i in self.configs.iterrows():
+        self.config_store.clear()
+        for i, config_i in configs.iterrows():
             self.config_store.append([i, config_i, config_str_f(config_i)])
+
+    def create_ui(self):
+        self.config_store = Gtk.ListStore(int, object, str)
+        self.set_configs(self.configs)
 
         self.config_combo = Gtk.ComboBox.new_with_model(self.config_store)
         renderer_text = Gtk.CellRendererText()
@@ -95,6 +99,7 @@ class VideoView(SlaveView):
 
 class RecordView(SlaveView):
     def __init__(self, device_configs=None):
+        self.video_view = None
         super(RecordView, self).__init__()
         if device_configs is None:
             self.device_configs = get_device_configs()
